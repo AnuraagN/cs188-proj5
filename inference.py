@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -74,9 +74,9 @@ class DiscreteDistribution(dict):
         {}
         """
         total = self.total()
-        if total == 0: 
-            return 
-        for key in self.keys(): 
+        if total == 0:
+            return
+        for key in self.keys():
             self[key] = float(self[key])/(total)
 
     def sample(self):
@@ -101,12 +101,12 @@ class DiscreteDistribution(dict):
         """
         self.normalize()
         rand_num = random.random()
-        total = self.total() 
-        running_sum = 0 
-        for d in self: 
-            running_sum += self[d] 
-            if rand_num < running_sum: 
-                return d 
+        total = self.total()
+        running_sum = 0
+        for d in self:
+            running_sum += self[d]
+            if rand_num < running_sum:
+                return d
 
 
 
@@ -179,11 +179,11 @@ class InferenceModule:
         """
         "*** YOUR CODE HERE ***"
         if ghostPosition == jailPosition:
-            if noisyDistance == None: 
+            if noisyDistance == None:
                 return 1
-            if noisyDistance != None: 
+            if noisyDistance != None:
                 return 0
-        if ghostPosition != jailPosition and noisyDistance == None: 
+        if ghostPosition != jailPosition and noisyDistance == None:
             return 0
 
         dist = manhattanDistance(pacmanPosition, ghostPosition)
@@ -292,7 +292,7 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-        for pos in self.allPositions: 
+        for pos in self.allPositions:
             self.beliefs[pos] = self.beliefs[pos]*self.getObservationProb(observation, gameState.getPacmanPosition(), pos, self.getJailPosition())
 
         self.beliefs.normalize()
@@ -308,11 +308,11 @@ class ExactInference(InferenceModule):
         "*** YOUR CODE HERE ***"
 
         newBelief = self.beliefs.copy()
-        for belief in newBelief: 
-            newBelief[belief] = 0 
-        for oldpos in self.allPositions: 
+        for belief in newBelief:
+            newBelief[belief] = 0
+        for oldpos in self.allPositions:
             newPosDist = self.getPositionDistribution(gameState, oldpos)
-            for pos in self.allPositions: 
+            for pos in self.allPositions:
                 newBelief[pos] += newPosDist[pos]*self.beliefs[oldpos]
         self.beliefs = newBelief
         self.beliefs.normalize()
@@ -343,7 +343,7 @@ class ParticleFilter(InferenceModule):
         self.particles = []
         num_each_pos = self.numParticles/len(self.legalPositions)
         for pos in self.legalPositions:
-            for i in range(num_each_pos): 
+            for i in range(num_each_pos):
                 self.particles.append(pos)
 
     def observeUpdate(self, observation, gameState):
@@ -359,9 +359,9 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         belief_dist = self.getBeliefDistribution()
         new_dict = DiscreteDistribution()
-        for elem in set(self.particles): 
+        for elem in set(self.particles):
             new_dict[elem] = self.getObservationProb(observation, gameState.getPacmanPosition(), elem,self.getJailPosition())*belief_dist[elem]
-        if new_dict.total() == 0: 
+        if new_dict.total() == 0:
             self.initializeUniformly(gameState)
             return
         new_dict.normalize()
@@ -374,10 +374,10 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         new_list = []
-        for elem in self.particles: 
+        for elem in self.particles:
             dist = self.getPositionDistribution(gameState, elem)
             new_list.append(dist.sample())
-        self.particles = new_list 
+        self.particles = new_list
 
 
 
@@ -389,7 +389,7 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         particle_dict = {}
-        for elem in self.particles: 
+        for elem in self.particles:
             particle_dict[elem] = self.particles.count(elem)
         discrete_particle_dist = DiscreteDistribution(particle_dict)
         discrete_particle_dist.normalize()
@@ -421,6 +421,12 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
+        import itertools
+        legalTuples = list(itertools.product(self.legalPositions, repeat=self.numGhosts))
+        random.shuffle(legalTuples)
+        for x in range(self.numParticles):
+            self.particles.append(legalTuples[x%len(legalTuples)])
+
 
     def addGhostAgent(self, agent):
         """
