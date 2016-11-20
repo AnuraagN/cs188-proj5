@@ -390,9 +390,11 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         particle_dict = {}
-        for elem in set(self.particles): 
+        for elem in self.particles: 
             particle_dict[elem] = self.particles.count(elem)
-        return particle_dict
+        discrete_particle_dist = DiscreteDistribution(particle_dict)
+        discrete_particle_dist.normalize()
+        return discrete_particle_dist
 
 
 class JointParticleFilter(ParticleFilter):
