@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
+# 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -57,7 +57,6 @@ class DiscreteDistribution(dict):
         Normalize the distribution such that the total value of all keys sums
         to 1. The ratio of values for all keys will remain the same. In the case
         where the total value of the distribution is 0, do nothing.
-
         >>> dist = DiscreteDistribution()
         >>> dist['a'] = 1
         >>> dist['b'] = 2
@@ -75,16 +74,15 @@ class DiscreteDistribution(dict):
         {}
         """
         total = self.total()
-        if total == 0:
-            return
-        for key in self.keys():
+        if total == 0: 
+            return 
+        for key in self.keys(): 
             self[key] = float(self[key])/(total)
 
     def sample(self):
         """
         Draw a random sample from the distribution and return the key, weighted
         by the values associated with each key.
-
         >>> dist = DiscreteDistribution()
         >>> dist['a'] = 1
         >>> dist['b'] = 2
@@ -110,20 +108,7 @@ class DiscreteDistribution(dict):
             if rand_num < running_sum: 
                 return d 
 
-        num_keys = len(self.keys())
-        i = 0
-        rand_num = random.random()
-        while i <= num_keys - 1:
-            if i == 0:
-                if rand_num < self[ordered[0]]:
-                    return ordered[0]
-            elif i != num_keys -1:
-                if rand_num >= self[ordered[i-1]] and rand_num < self[ordered[i-1]] + self[ordered[i]]:
-                    return ordered[i]
-            else:
-                if rand_num >= self[ordered[num_keys-1]]:
-                    return ordered[num_keys-1]
-            i += 1
+
 
 
 class InferenceModule:
@@ -193,24 +178,22 @@ class InferenceModule:
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
         "*** YOUR CODE HERE ***"
-        if noisyDistance == None:
-            if ghostPosition == jailPosition:
-                return 1.0
-            else:
-                return 0.0
-        else:
-            if ghostPosition == jailPosition:
-                return 0.0
-            else:
-                dist = manhattanDistance(pacmanPosition, ghostPosition)
-                return busters.getObservationProbability(noisyDistance, dist)
+        if ghostPosition == jailPosition:
+            if noisyDistance == None: 
+                return 1
+            if noisyDistance != None: 
+                return 0
+        if ghostPosition != jailPosition and noisyDistance == None: 
+            return 0
+
+        dist = manhattanDistance(pacmanPosition, ghostPosition)
+        return busters.getObservationProbability(noisyDistance, dist)
 
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
         Set the position of the ghost for this inference module to the specified
         position in the supplied gameState.
-
         Note that calling setGhostPosition does not change the position of the
         ghost in the GameState object used for tracking the true progression of
         the game.  The code in inference.py only ever receives a deep copy of
@@ -299,23 +282,17 @@ class ExactInference(InferenceModule):
     def observeUpdate(self, observation, gameState):
         """
         Update beliefs based on the distance observation and Pacman's position.
-
         The observation is the noisy Manhattan distance to the ghost you are
         tracking.
-
         self.allPositions is a list of the possible ghost positions, including
         the jail position. You should only consider positions that are in
         self.allPositions.
-
         The update model is not entirely stationary: it may depend on Pacman's
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
         "*** YOUR CODE HERE ***"
-
         for pos in self.allPositions: 
-
-        for pos in self.allPositions:
             self.beliefs[pos] = self.beliefs[pos]*self.getObservationProb(observation, gameState.getPacmanPosition(), pos, self.getJailPosition())
 
         self.beliefs.normalize()
@@ -324,7 +301,6 @@ class ExactInference(InferenceModule):
         """
         Predict beliefs in response to a time step passing from the current
         state.
-
         The transition model is not entirely stationary: it may depend on
         Pacman's current position. However, this is not a problem, as Pacman's
         current position is known.
@@ -332,14 +308,14 @@ class ExactInference(InferenceModule):
         "*** YOUR CODE HERE ***"
 
         newBelief = self.beliefs.copy()
-        for belief in newBelief:
-            newBelief[belief] = 0
-        for oldpos in self.allPositions:
+        for belief in newBelief: 
+            newBelief[belief] = 0 
+        for oldpos in self.allPositions: 
             newPosDist = self.getPositionDistribution(gameState, oldpos)
-            for pos in self.allPositions:
+            for pos in self.allPositions: 
                 newBelief[pos] += newPosDist[pos]*self.beliefs[oldpos]
         self.beliefs = newBelief
-        #self.beliefs.normalize()
+        self.beliefs.normalize()
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -367,16 +343,14 @@ class ParticleFilter(InferenceModule):
         self.particles = []
         num_each_pos = self.numParticles/len(self.legalPositions)
         for pos in self.legalPositions:
-            for i in range(num_each_pos):
+            for i in range(num_each_pos): 
                 self.particles.append(pos)
 
     def observeUpdate(self, observation, gameState):
         """
         Update beliefs based on the distance observation and Pacman's position.
-
         The observation is the noisy Manhattan distance to the ghost you are
         tracking.
-
         There is one special case that a correct implementation must handle.
         When all particles receive zero weight, the list of particles should
         be reinitialized by calling initializeUniformly. The total method of
@@ -408,7 +382,7 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         particle_dict = {}
-        for elem in self.particles:
+        for elem in self.particles: 
             particle_dict[elem] = self.particles.count(elem)
         discrete_particle_dist = DiscreteDistribution(particle_dict)
         discrete_particle_dist.normalize()
@@ -462,10 +436,8 @@ class JointParticleFilter(ParticleFilter):
     def observeUpdate(self, observation, gameState):
         """
         Update beliefs based on the distance observation and Pacman's position.
-
         The observation is the noisy Manhattan distances to all ghosts you
         are tracking.
-
         There is one special case that a correct implementation must handle.
         When all particles receive zero weight, the list of particles should
         be reinitialized by calling initializeUniformly. The total method of
