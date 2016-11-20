@@ -102,7 +102,6 @@ class DiscreteDistribution(dict):
         0.0
         """
         self.normalize()
-<<<<<<< HEAD
         rand_num = random.random()
         total = self.total() 
         running_sum = 0 
@@ -110,7 +109,7 @@ class DiscreteDistribution(dict):
             running_sum += self[d] 
             if rand_num < running_sum: 
                 return d 
-=======
+
         num_keys = len(self.keys())
         i = 0
         rand_num = random.random()
@@ -125,9 +124,6 @@ class DiscreteDistribution(dict):
                 if rand_num >= self[ordered[num_keys-1]]:
                     return ordered[num_keys-1]
             i += 1
->>>>>>> e4c4f4041db96cc1126bcda8c84fc55064c4449d
-
-
 
 
 class InferenceModule:
@@ -316,11 +312,10 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-<<<<<<< HEAD
+
         for pos in self.allPositions: 
-=======
+
         for pos in self.allPositions:
->>>>>>> e4c4f4041db96cc1126bcda8c84fc55064c4449d
             self.beliefs[pos] = self.beliefs[pos]*self.getObservationProb(observation, gameState.getPacmanPosition(), pos, self.getJailPosition())
 
         self.beliefs.normalize()
