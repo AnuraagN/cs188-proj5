@@ -427,7 +427,6 @@ class JointParticleFilter(ParticleFilter):
         for x in range(self.numParticles):
             self.particles.append(legalTuples[x%len(legalTuples)])
 
-
     def addGhostAgent(self, agent):
         """
         Each ghost agent is registered separately and stored (in case they are
