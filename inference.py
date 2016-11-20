@@ -101,22 +101,14 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        ordered = sorted(self, key=lambda k: self[k])
         self.normalize()
-        num_keys = len(self.keys())
-        i = 0 
         rand_num = random.random()
-        while i <= num_keys - 1: 
-            if i == 0: 
-                if rand_num < self[ordered[0]]: 
-                    return ordered[0]
-            elif i != num_keys -1: 
-                if rand_num >= self[ordered[i-1]] and rand_num < self[ordered[i-1]] + self[ordered[i]]: 
-                    return ordered[i]
-            else: 
-                if rand_num >= self[ordered[num_keys-1]]:
-                    return ordered[num_keys-1] 
-            i += 1 
+        total = self.total() 
+        running_sum = 0 
+        for d in self: 
+            running_sum += self[d] 
+            if rand_num < running_sum: 
+                return d 
 
 
 
@@ -307,7 +299,7 @@ class ExactInference(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         for pos in self.allPositions: 
-            self.beliefs[pos] = self.beliefs[pos]*self.getObservationProb(observation, gameState.getPacmanPosition(), pos, self.getJailPosition)
+            self.beliefs[pos] = self.beliefs[pos]*self.getObservationProb(observation, gameState.getPacmanPosition(), pos, self.getJailPosition())
 
         self.beliefs.normalize()
 
@@ -374,6 +366,15 @@ class ParticleFilter(InferenceModule):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
+        belief_dist = self.getBeliefDistribution()
+        new_dict = DiscreteDistribution()
+        for elem in set(self.particles): 
+            new_dict[elem] = self.getObservationProb(observation, gameState.getPacmanPosition(), elem,self.getJailPosition())*belief_dist[elem]
+        if new_dict.total() == 0: 
+            self.initializeUniformly(gameState)
+            return
+        new_dict.normalize()
+        self.particles = [new_dict.sample() for _ in range(self.numParticles)]
 
     def elapseTime(self, gameState):
         """
